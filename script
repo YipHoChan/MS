@@ -6,3 +6,74 @@ Yehao@Yehaos-Mac MS_20240214 % ls
 20240214_BeforeCLR_wide_bracken_merged_genus_filtered.csv
 20240214_BeforeCLR_wide_bracken_merged_order_filtered.csv
 20240214_BeforeCLR_wide_bracken_merged_species_filtered.csv
+
+python3
+import pandas as pd
+
+BeforeCLR_domain_csv_path = '20240214_BeforeCLR_wide_bracken_merged_domain.csv'
+BeforeCLR_domain = pd.read_csv(BeforeCLR_domain_csv_path)
+BeforeCLR_domain.replace("", pd.NaT, inplace=True)
+BeforeCLR_domain.fillna(0, inplace=True)
+BeforeCLR_domain.to_csv("20240214_Zero_BeforeCLR_wide_bracken_merged_domain.csv")
+
+BeforeCLR_family_csv_path = '20240214_BeforeCLR_wide_bracken_merged_family_filtered.csv'
+BeforeCLR_family = pd.read_csv(BeforeCLR_family_csv_path)
+BeforeCLR_family.replace("", pd.NaT, inplace=True)
+BeforeCLR_family.fillna(0, inplace=True)
+BeforeCLR_family.to_csv("20240214_Zero_BeforeCLR_wide_bracken_merged_family_filtered.csv")
+
+BeforeCLR_genus_csv_path = '20240214_BeforeCLR_wide_bracken_merged_genus_filtered.csv'
+BeforeCLR_genus = pd.read_csv(BeforeCLR_genus_csv_path)
+BeforeCLR_genus.replace("", pd.NaT, inplace=True)
+BeforeCLR_genus.fillna(0, inplace=True)
+BeforeCLR_genus.to_csv("20240214_Zero_BeforeCLR_wide_bracken_merged_genus_filtered.csv")
+
+BeforeCLR_order_csv_path = '20240214_BeforeCLR_wide_bracken_merged_order_filtered.csv'
+BeforeCLR_order = pd.read_csv(BeforeCLR_order_csv_path)
+BeforeCLR_order.replace("", pd.NaT, inplace=True)
+BeforeCLR_order.fillna(0, inplace=True)
+BeforeCLR_order.to_csv("20240214_Zero_BeforeCLR_wide_bracken_merged_order_filtered.csv")
+
+BeforeCLR_species_csv_path = '20240214_BeforeCLR_wide_bracken_merged_species_filtered.csv'
+BeforeCLR_species = pd.read_csv(BeforeCLR_species_csv_path)
+BeforeCLR_species.replace("", pd.NaT, inplace=True)
+BeforeCLR_species.fillna(0, inplace=True)
+BeforeCLR_species.to_csv("20240214_Zero_BeforeCLR_wide_bracken_merged_species_filtered.csv")
+
+#(R) CLR
+R
+library(tibble)
+library(compositions)
+
+ForCLR_Domain = read.csv("20240214_Zero_BeforeCLR_wide_bracken_merged_domain.csv")
+ForCLR_Family = read.csv("20240214_Zero_BeforeCLR_wide_bracken_merged_family_filtered.csv")
+ForCLR_Genus = read.csv("20240214_Zero_BeforeCLR_wide_bracken_merged_genus_filtered.csv")
+ForCLR_Order = read.csv("20240214_Zero_BeforeCLR_wide_bracken_merged_order_filtered.csv")
+ForCLR_Species = read.csv("20240214_Zero_BeforeCLR_wide_bracken_merged_species_filtered.csv")
+
+rel_ab_CLR_Domain = column_to_rownames(ForCLR_Domain, var = "name") %>% as.data.frame()
+rel_ab_CLR_Family = column_to_rownames(ForCLR_Family, var = "name") %>% as.data.frame()
+rel_ab_CLR_Genus = column_to_rownames(ForCLR_Genus, var = "name") %>% as.data.frame()
+rel_ab_CLR_Order = column_to_rownames(ForCLR_Order, var = "name") %>% as.data.frame()
+rel_ab_CLR_Species = column_to_rownames(ForCLR_Species, var = "name") %>% as.data.frame()
+
+rel_ab_CLR_Domain_noX = rel_ab_CLR_Domain[, -1]
+rel_ab_CLR_Family_noX = rel_ab_CLR_Family[, -1]
+rel_ab_CLR_Genus_noX = rel_ab_CLR_Genus[, -1]
+rel_ab_CLR_Order_noX = rel_ab_CLR_Order[, -1]
+rel_ab_CLR_Species_noX = rel_ab_CLR_Species[, -1]
+
+rel_ab_CLR_done_Domain = clr(rel_ab_CLR_Domain_noX)
+rel_ab_CLR_done_Family = clr(rel_ab_CLR_Family_noX)
+rel_ab_CLR_done_Genus = clr(rel_ab_CLR_Genus_noX)
+rel_ab_CLR_done_Order = clr(rel_ab_CLR_Order_noX)
+rel_ab_CLR_done_Species = clr(rel_ab_CLR_Species_noX)
+
+write.csv(rel_ab_CLR_done_Domain, file ="20240214_CLR_wide_bracken_merged_domain_filtered.csv")
+write.csv(rel_ab_CLR_done_Family, file ="20240214_CLR_wide_bracken_merged_family_filtered.csv")
+write.csv(rel_ab_CLR_done_Genus, file ="20240214_CLR_wide_bracken_merged_genus_filtered.csv")
+write.csv(rel_ab_CLR_done_Order, file ="20240214_CLR_wide_bracken_merged_order_filtered.csv")
+write.csv(rel_ab_CLR_done_Species, file ="20240214_CLR_wide_bracken_merged_species_filtered.csv")
+
+
+
