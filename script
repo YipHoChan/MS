@@ -127,113 +127,91 @@ sorted_data <- revisedCLR_composition_S_num[, order(mean_values, decreasing = TR
 colnames(sorted_data)
 revisedCLR_composition_S_neworder = subset(revisedCLR, select = c("disease", "s_Methanobrevibacter_A.smithii", "s_Methanobrevibacter_A.sp900766745", "s_Methanobrevibacter_A.smithii_A", "s_Methanomassiliicoccus_A.intestinalis", "s_Methanosphaera.sp900322125", "s_Methanobrevibacter_A.woesei", "s_Methanosphaera.stadtmanae", "s_UBA71.sp006954425", "s_Methanosphaera.cuniculi", "s_Methanomassiliicoccus.luminyensis", "s_Methanobrevibacter_A.oralis", "s_UBA71.sp006954465", "s_Methanobrevibacter_A.sp900769095", "s_UBA71.sp900767505", "s_Methanomethylophilus.alvus"))
 revisedCLR_composition_S_neworder_long = melt(revisedCLR_composition_S_neworder)
-#palette1
-Spectral = brewer.pal(11, "Spectral")
-palette1 = Spectral[5:1]
-#palette2
-PiYG = brewer.pal(11, "PiYG")
-palette2 = PiYG[5:1]
-#palette3
-PRGn = brewer.pal(11, "PRGn")
-palette3 = PRGn[1:6]
-#combined palette
-combined_palette = c(palette1[1], "#E3C498", palette1[2:5], palette2, palette3)
-#selected colours
-selected_colors <- combined_palette[1:15]
+#palette
+Spectrual = brewer.pal(11, "Spectral")
+Selected_Spectrual = Spectrual[7:11]
+RdYlGn = brewer.pal(11, "RdYlGn")
+Selected_RdYlGn = RdYlGn[1:6]
+combined_palette = c(Selected_Spectrual, Selected_RdYlGn, brewer.pal(11, "BrBG"))
+selected_colors <- combined_palette[2:16]
 #plot
 ggplot(revisedCLR_composition_S_neworder_long, aes(fill=variable, y=value, x = disease)) + geom_bar(position="fill", stat="identity") + scale_fill_manual(values = selected_colors, labels = c("Methanobrevibacter_A smithii", "Methanobrevibacter_A sp900766745", "Methanobrevibacter_A smithii_A", "Methanomassiliicoccus_A intestinalis", "Methanosphaera sp900322125", "Methanobrevibacter_A woesei", "Methanosphaera stadtmanae", "UBA71 sp006954425", "Methanosphaera cuniculi", "Methanomassiliicoccus luminyensis", "Methanobrevibacter_A oralis", "UBA71 sp006954465", "Methanobrevibacter_A sp900769095", "UBA71 sp900767505", "Methanomethylophilus alvus")) + scale_y_continuous(labels = percent_format()) + labs(x = "Group", y = "Relative Abundance", fill = "Species") + scale_x_discrete(labels = c("HHC", "MS"))
 
-#1D (refer to table 1)
-# Create Vectors
-Buenos_Aires <- c(27, 5)
-Edinburgh <- c(22,17)
-New_York <- c(12, 0)
-San_Francisco <- c(19,13)
 
-# Create DataFrame
-df <- data.frame(Buenos_Aires, Edinburgh, New_York, San_Francisco)
-rownames(df) = c("Treated", "Untreated")
-df = as.matrix(df)
+#Table 2 and Figure 2
+#Load packages
+library(tableone)
 
-# Print DataFrame
-df
+revisedCLR = read.csv("20240311_analysed_samples.csv")
+revisedCLR$disease_course_newgroups <- ifelse(revisedCLR$disease_course == "Control", "HHC", ifelse(revisedCLR$disease_course %in% c("PPMS", "SPMS"), "PPMSandSPMS", ifelse(revisedCLR$disease_course == "RRMS", "RRMS",  NA)))
+revisedCLR$education_revised <- ifelse(revisedCLR$education %in% c("High School Graduate", "Some High School"), "High School", ifelse(revisedCLR$education %in% c("College/University Degree", "Post-Graduate Education", "Some College/Technical Degree"), "Tertiary education",  NA))
 
-# Reshape data to long format
-df_long <- melt(df, value.name = "Number")
-colnames(df_long) = c("Treatment_status", "Site", "Number")
+myVars = c("disease", "treatment_status")
 
-Set2 = brewer.pal(8, "Set2")
-Selected_Set2 = Set2[1:2]
-mycolors = Selected_Set2
+#Total
+tab_Total = CreateTableOne(vars = myVars, strata = "high.methane.emitter_total_Archaea", data = revisedCLR)
+TableTotal = print(tab_Total, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , exact = "stage", smd = TRUE)
+write.csv(TableTotal, file = "20240311_MS_totalarchaea.csv")
+#Methanobrevibacter
+tab_Methanobrevibacter = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A", data = revisedCLR)
+TableMethanobrevibacter = print(tab_Methanobrevibacter, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , exact = "stage", smd = TRUE)
+write.csv(TableMethanobrevibacter, file = "20240311_MS_Methanobrevibacter.csv")
+#Methanobrevibacter smithii 
+tab_smithii = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A.smithii", data = revisedCLR)
+Tablesmithii = print(tab_smithii, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , exact = "stage", smd = TRUE)
+write.csv(Tablesmithii, file = "20240311_MS_smithii.csv")
+#Methanobrevibacter sp900766745 
+tab_sp900766745 = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A.sp900766745", data = revisedCLR)
+Tablesp900766745 = print(tab_sp900766745, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , exact = "stage", smd = TRUE)
+write.csv(Tablesp900766745, file = "20240311_MS_sp900766745.csv")
 
-ggplot(df_long, aes(x = Site, y = Number, fill = Treatment_status)) +
-  geom_bar(stat = "identity", colour = "black") +
-  scale_fill_manual(values = mycolors) +
-  theme(axis.text.x = element_text(hjust = 0.5)) +
-  labs(x = "Site", y = "Number", fill = "Treatment status") +
-  scale_x_discrete(labels=c("Buenos Aires", "Edinburgh", "New York", "San Francisco"))
+revisedCLR = subset(revisedCLR, disease == "MS")
+myVars = c("treatment_status", "MSSS", "edss")
+Nonnormal = c("MSSS", "edss")
+#Total
+tab_Total = CreateTableOne(vars = myVars, strata = "high.methane.emitter_total_Archaea", data = revisedCLR)
+TableTotal = print(tab_Total, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , nonnormal = Nonnormal, exact = "stage", smd = TRUE)
+write.csv(TableTotal, file = "20240312_MS_totalarchaea.csv")
+#Methanobrevibacter
+tab_Methanobrevibacter = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A", data = revisedCLR)
+TableMethanobrevibacter = print(tab_Methanobrevibacter, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , nonnormal = Nonnormal, exact = "stage", smd = TRUE)
+write.csv(TableMethanobrevibacter, file = "20240312_MS_Methanobrevibacter.csv")
+#Methanobrevibacter smithii 
+tab_smithii = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A.smithii", data = revisedCLR)
+Tablesmithii = print(tab_smithii, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , nonnormal = Nonnormal, exact = "stage", smd = TRUE)
+write.csv(Tablesmithii, file = "20240312_MS_smithii.csv")
+#Methanobrevibacter sp900766745 
+tab_sp900766745 = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A.sp900766745", data = revisedCLR)
+Tablesp900766745 = print(tab_sp900766745, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , nonnormal = Nonnormal, exact = "stage", smd = TRUE)
+write.csv(Tablesp900766745, file = "20240312_MS_sp900766745.csv")
 
-# Create Vectors
-Female <- c(53, 27)
-Male <- c(27,8)
+border_palette = c("#069752", "#D15702")
+fill_palette = c("#85F3BE", "#E5B797")
+p = ggplot(revisedCLR, aes(x = high.methane.emitter_Methanobrevibacter_A.sp900766745, y = MSSS, fill = high.methane.emitter_Methanobrevibacter_A.sp900766745, color = high.methane.emitter_Methanobrevibacter_A.sp900766745)) + geom_boxplot(fill = fill_palette, color = border_palette, width = 0.7) + labs(x = "", y = "MSSS") + scale_x_discrete(labels = c("Low-methane-emitter", "High-methane-emitter")) + scale_fill_identity() + scale_color_identity() + theme(plot.title = element_text(hjust = 0.5)) + stat_compare_means(label = "p.signif", label.y = 10, label.x = 1.5)
+p
 
-# Create DataFrame
-df <- data.frame(Female, Male)
-rownames(df) = c("Treated", "Untreated")
-df = as.matrix(df)
+border_palette = c("#069752", "#D15702")
+fill_palette = c("#85F3BE", "#E5B797")
+p = ggplot(revisedCLR, aes(x = high.methane.emitter_Methanobrevibacter_A.sp900766745, y = edss, fill = high.methane.emitter_Methanobrevibacter_A.sp900766745, color = high.methane.emitter_Methanobrevibacter_A.sp900766745)) + geom_boxplot(fill = fill_palette, color = border_palette, width = 0.7) + labs(x = "", y = "EDSS") + scale_x_discrete(labels = c("Low-methane-emitter", "High-methane-emitter")) + scale_fill_identity() + scale_color_identity() + theme(plot.title = element_text(hjust = 0.5)) + stat_compare_means(label = "p.signif", label.y = 8, label.x = 1.5)
+p
 
-# Print DataFrame
-df
 
-# Reshape data to long format
-df_long <- melt(df, value.name = "Number")
-colnames(df_long) = c("Treatment_status", "Gender", "Number")
 
-Set2 = brewer.pal(8, "Set2")
-Selected_Set2 = Set2[1:2]
-mycolors = Selected_Set2
-
-ggplot(df_long, aes(x = Gender, y = Number, fill = Treatment_status)) +
-  geom_bar(stat = "identity", colour = "black") +
-  scale_fill_manual(values = mycolors) +
-  theme(axis.text.x = element_text(hjust = 0.5)) +
-  labs(x = "Gender", y = "Number", fill = "Treatment status") 
-
-# Create Vectors
-Female <- c(19, 61)
-Male <- c(4,31)
-
-# Create DataFrame
-df <- data.frame(Female, Male)
-rownames(df) = c("PMS", "RRMS")
-df = as.matrix(df)
-
-# Print DataFrame
-df
-
-# Reshape data to long format
-df_long <- melt(df, value.name = "Number")
-colnames(df_long) = c("Disease_course", "Gender", "Number")
-
-Set2 = brewer.pal(8, "Set2")
-Selected_Set2 = Set2[3:4]
-mycolors = Selected_Set2
-
-ggplot(df_long, aes(x = Gender, y = Number, fill = Disease_course)) +
-  geom_bar(stat = "identity", colour = "black") +
-  scale_fill_manual(values = mycolors) +
-  theme(axis.text.x = element_text(hjust = 0.5)) +
-  labs(x = "Gender", y = "Number", fill = "Disease course") 
-
-#Figure 2
-#2A
+#Figure 3
+#3A
 border_palette = c("#4D4B4D", "#DD0187", "#037203")
 fill_palette = c("#ECE9EC", "#FEA3BE", "#EFF9E1")
 base_D = ggplot(revisedCLR, aes(x = treatment_status, y = CLR_d_Archaea, fill = treatment_status, color = treatment_status)) + geom_boxplot(fill = fill_palette, color = border_palette, width = 0.7) + labs(x = "", y = "CLR transformed abundance") + scale_x_discrete(labels = c("HHC", "Treated", "Untreated")) + scale_fill_identity() + scale_color_identity() + ggtitle("Archaea") + theme(plot.title = element_text(hjust = 0.5))
 p = base_D + geom_pwc(aes(group = treatment_status), tip.length = 0, method = "wilcox_test", label = "p.adj.signif") + stat_compare_means(show.legend=FALSE, label = "p.signif", label.y = 7, label.x = 1.8)
 p
 
-#2B
+#3B
+revisedCLR_treatment_status_S = subset(revisedCLR, select = c("treatment_status", "CLR_s_Methanobrevibacter_A.oralis", "CLR_s_Methanobrevibacter_A.smithii", "CLR_s_Methanobrevibacter_A.smithii_A", "CLR_s_Methanobrevibacter_A.sp900766745", "CLR_s_Methanobrevibacter_A.sp900769095", "CLR_s_Methanobrevibacter_A.woesei"))
+revisedCLR_treatment_status_NC_S = subset(revisedCLR_treatment_status_S, treatment_status %in% c("Treated", "Untreated"))
+revisedCLR_treatment_status_NC_S_long = melt(revisedCLR_treatment_status_NC_S)
+ggplot(revisedCLR_treatment_status_NC_S_long, aes(x = variable, y = value, color = treatment_status, fill = treatment_status)) + geom_boxplot() + labs(x="Species", y="CLR transformed abundance", fill = "", color = "") + scale_x_discrete(guide = guide_axis(n.dodge = 2), labels = c("Methanobrevibacter_A oralis", "Methanobrevibacter_A smithii", "Methanobrevibacter_A smithii_A", "Methanobrevibacter_A sp900766745", "Methanobrevibacter_A sp900769095", "Methanobrevibacter_A woesei", "Methanomassiliicoccus luminyensis", "Methanomassiliicoccus_A intestinalis", "Methanosphaera cuniculi", "Methanosphaera sp900322125", "Methanosphaera stadtmanae", "UBA71 sp006954425", "UBA71 sp006954465", "UBA71 sp900767505")) + scale_color_manual(values = c("#DD0187", "#037203"), labels = c("Treated", "Untreated")) + scale_fill_manual(values = c("#FEA3BE", "#EFF9E1"), labels = c("Treated", "Untreated")) + theme(legend.position = "top") + stat_compare_means(show.legend=FALSE, label = "p.signif", label.y = 5)
+
+#3C
 revisedCLR_composition_S_num = subset(revisedCLR, select = c("s_Methanobrevibacter_A.oralis", "s_Methanobrevibacter_A.smithii", "s_Methanobrevibacter_A.smithii_A", "s_Methanobrevibacter_A.sp900766745", "s_Methanobrevibacter_A.sp900769095", "s_Methanobrevibacter_A.woesei", "s_Methanomassiliicoccus.luminyensis", "s_Methanomassiliicoccus_A.intestinalis", "s_Methanomethylophilus.alvus", "s_Methanosphaera.cuniculi", "s_Methanosphaera.sp900322125", "s_Methanosphaera.stadtmanae", "s_UBA71.sp006954425", "s_UBA71.sp006954465", "s_UBA71.sp900767505"))
 mean_values <- colMeans(revisedCLR_composition_S_num)
 sorted_data <- revisedCLR_composition_S_num[, order(mean_values, decreasing = TRUE)]
@@ -248,51 +226,44 @@ combined_palette = c(Selected_Spectrual, Selected_RdYlGn, brewer.pal(11, "BrBG")
 selected_colors <- combined_palette[2:16]
 ggplot(revisedCLR_composition_S_neworder_long, aes(fill=variable, y=value, x = treatment_status)) + geom_bar(position="fill", stat="identity") + scale_fill_manual(values = selected_colors, labels = c("Methanobrevibacter_A smithii", "Methanobrevibacter_A sp900766745", "Methanobrevibacter_A smithii_A", "Methanomassiliicoccus_A intestinalis", "Methanosphaera sp900322125", "Methanobrevibacter_A woesei", "Methanosphaera stadtmanae", "UBA71 sp006954425", "Methanosphaera cuniculi", "Methanomassiliicoccus luminyensis", "Methanobrevibacter_A oralis", "UBA71 sp006954465", "Methanobrevibacter_A sp900769095", "UBA71 sp900767505", "Methanomethylophilus alvus")) + scale_y_continuous(labels = percent_format()) + labs(x = "Group", y = "Relative Abundance", fill = "Species") + scale_x_discrete(labels = c("HHC", "Treated", "Untreated"))
 
-#2C
-revisedCLR_treatment_status_S = subset(revisedCLR, select = c("treatment_status", "CLR_s_Methanobrevibacter_A.oralis", "CLR_s_Methanobrevibacter_A.smithii", "CLR_s_Methanobrevibacter_A.smithii_A", "CLR_s_Methanobrevibacter_A.sp900766745", "CLR_s_Methanobrevibacter_A.sp900769095", "CLR_s_Methanobrevibacter_A.woesei"))
-revisedCLR_treatment_status_NC_S = subset(revisedCLR_treatment_status_S, treatment_status %in% c("Treated", "Untreated"))
-revisedCLR_treatment_status_NC_S_long = melt(revisedCLR_treatment_status_NC_S)
-ggplot(revisedCLR_treatment_status_NC_S_long, aes(x = variable, y = value, color = treatment_status, fill = treatment_status)) + geom_boxplot() + labs(x="Species", y="CLR transformed abundance", fill = "", color = "") + scale_x_discrete(guide = guide_axis(n.dodge = 2), labels = c("Methanobrevibacter_A oralis", "Methanobrevibacter_A smithii", "Methanobrevibacter_A smithii_A", "Methanobrevibacter_A sp900766745", "Methanobrevibacter_A sp900769095", "Methanobrevibacter_A woesei", "Methanomassiliicoccus luminyensis", "Methanomassiliicoccus_A intestinalis", "Methanosphaera cuniculi", "Methanosphaera sp900322125", "Methanosphaera stadtmanae", "UBA71 sp006954425", "UBA71 sp006954465", "UBA71 sp900767505")) + scale_color_manual(values = c("#DD0187", "#037203"), labels = c("Treated", "Untreated")) + scale_fill_manual(values = c("#FEA3BE", "#EFF9E1"), labels = c("Treated", "Untreated")) + theme(legend.position = "top") + stat_compare_means(show.legend=FALSE, label = "p.signif", label.y = 5)
 
-#Figure 3
-#3A
+
+#Figure 4
+#4A
 border_palette = c("#4D4B4D", "#CA601B", "#1B85B2")
 fill_palette = c("#ECE9EC", "#FADDA1", "#AFE9F8")
 base_D = ggplot(revisedCLR, aes(x = disease_course_newgroups, y = CLR_d_Archaea, fill = disease_course_newgroups, color = disease_course_newgroups)) + geom_boxplot(fill = fill_palette, color = border_palette, width = 0.7, notch = TRUE) + labs(x = "", y = "CLR transformed abundance") + scale_x_discrete(labels = c("HHC", "PMS", "RRMS")) + scale_fill_identity() + scale_color_identity() + ggtitle("Archaea") + theme(plot.title = element_text(hjust = 0.5))
 p = base_D + geom_pwc(aes(group = disease_course_newgroups), tip.length = 0, method = "wilcox_test", label = "p.adj.signif") + stat_compare_means(show.legend=FALSE, label = "p.signif", label.y = 7, label.x = 2)
 p
 
-#3B
+
+#4B
+revisedCLR_disease_course_newgroups_S = subset(revisedCLR, select = c("disease_course_newgroups", "CLR_s_Methanobrevibacter_A.oralis", "CLR_s_Methanobrevibacter_A.smithii", "CLR_s_Methanobrevibacter_A.smithii_A", "CLR_s_Methanobrevibacter_A.sp900766745", "CLR_s_Methanobrevibacter_A.sp900769095", "CLR_s_Methanobrevibacter_A.woesei", "CLR_s_Methanomassiliicoccus.luminyensis", "CLR_s_Methanomassiliicoccus_A.intestinalis", "CLR_s_Methanosphaera.cuniculi", "CLR_s_Methanosphaera.sp900322125", "CLR_s_Methanosphaera.stadtmanae", "CLR_s_UBA71.sp006954425", "CLR_s_UBA71.sp006954465", "CLR_s_UBA71.sp900767505"))
+revisedCLR_disease_course_newgroups_NC_S = subset(revisedCLR_disease_course_newgroups_S, disease_course_newgroups %in% c("PPMSandSPMS", "RRMS"))
+revisedCLR_disease_course_newgroups_NC_S_long = melt(revisedCLR_disease_course_newgroups_NC_S)
+ggplot(revisedCLR_disease_course_newgroups_NC_S_long, aes(x = variable, y = value, color = disease_course_newgroups, fill = disease_course_newgroups)) + geom_boxplot(notch = TRUE) + labs(x="Species", y="CLR transformed abundance", fill = "", color = "") + scale_x_discrete(guide = guide_axis(n.dodge = 2), labels = c("Methanobrevibacter_A oralis", "Methanobrevibacter_A smithii", "Methanobrevibacter_A smithii_A", "Methanobrevibacter_A sp900766745", "Methanobrevibacter_A sp900769095", "Methanobrevibacter_A woesei", "Methanomassiliicoccus luminyensis", "Methanomassiliicoccus_A intestinalis", "Methanosphaera cuniculi", "Methanosphaera sp900322125", "Methanosphaera stadtmanae", "UBA71 sp006954425", "UBA71 sp006954465", "UBA71 sp900767505")) + scale_color_manual(values = c("#CA601B", "#1B85B2"), labels = c("PMS", "RRMS")) + scale_fill_manual(values = c("#FADDA1", "#AFE9F8"), labels = c("PMS", "RRMS")) + theme(legend.position = "top") + stat_compare_means(show.legend=FALSE, label = "p.signif", label.y = 5)
+
+
+#4C
 revisedCLR_composition_S_num = subset(revisedCLR, select = c("s_Methanobrevibacter_A.oralis", "s_Methanobrevibacter_A.smithii", "s_Methanobrevibacter_A.smithii_A", "s_Methanobrevibacter_A.sp900766745", "s_Methanobrevibacter_A.sp900769095", "s_Methanobrevibacter_A.woesei", "s_Methanomassiliicoccus.luminyensis", "s_Methanomassiliicoccus_A.intestinalis", "s_Methanomethylophilus.alvus", "s_Methanosphaera.cuniculi", "s_Methanosphaera.sp900322125", "s_Methanosphaera.stadtmanae", "s_UBA71.sp006954425", "s_UBA71.sp006954465", "s_UBA71.sp900767505"))
 mean_values <- colMeans(revisedCLR_composition_S_num)
 sorted_data <- revisedCLR_composition_S_num[, order(mean_values, decreasing = TRUE)]
 colnames(sorted_data)
 revisedCLR_composition_S_neworder = subset(revisedCLR, select = c("disease_course_newgroups", "s_Methanobrevibacter_A.smithii", "s_Methanobrevibacter_A.sp900766745", "s_Methanobrevibacter_A.smithii_A", "s_Methanomassiliicoccus_A.intestinalis", "s_Methanosphaera.sp900322125", "s_Methanobrevibacter_A.woesei", "s_Methanosphaera.stadtmanae", "s_UBA71.sp006954425", "s_Methanosphaera.cuniculi", "s_Methanomassiliicoccus.luminyensis", "s_Methanobrevibacter_A.oralis", "s_UBA71.sp006954465", "s_Methanobrevibacter_A.sp900769095", "s_UBA71.sp900767505", "s_Methanomethylophilus.alvus"))
 revisedCLR_composition_S_neworder_long = melt(revisedCLR_composition_S_neworder)
-#palette1
-PuBu = brewer.pal(9, "PuBu")
-palette1 = PuBu[6:2]
-#palette2
-PiYG = brewer.pal(11, "PiYG")
-palette2 = PiYG[5:1]
-#palette3
-BrBG = brewer.pal(11, "BrBG")
-palette3 = BrBG[1:6]
-#combined palette
-combined_palette = c(palette1, palette2, palette3)
-#selected colours
-selected_colors <- combined_palette[1:15]
+#palette
+Spectrual = brewer.pal(11, "Spectral")
+Selected_Spectrual = Spectrual[7:11]
+RdYlGn = brewer.pal(11, "RdYlGn")
+Selected_RdYlGn = RdYlGn[1:6]
+combined_palette = c(Selected_Spectrual, Selected_RdYlGn, brewer.pal(11, "BrBG"))
+selected_colors <- combined_palette[2:16]
 #plot
 ggplot(revisedCLR_composition_S_neworder_long, aes(fill=variable, y=value, x = disease_course_newgroups)) + geom_bar(position="fill", stat="identity") + scale_fill_manual(values = selected_colors, labels = c("Methanobrevibacter_A smithii", "Methanobrevibacter_A sp900766745", "Methanobrevibacter_A smithii_A", "Methanomassiliicoccus_A intestinalis", "Methanosphaera sp900322125", "Methanobrevibacter_A woesei", "Methanosphaera stadtmanae", "UBA71 sp006954425", "Methanosphaera cuniculi", "Methanomassiliicoccus luminyensis", "Methanobrevibacter_A oralis", "UBA71 sp006954465", "Methanobrevibacter_A sp900769095", "UBA71 sp900767505", "Methanomethylophilus alvus")) + scale_y_continuous(labels = percent_format()) + labs(x = "Group", y = "Relative Abundance", fill = "Species") + scale_x_discrete(labels = c("HHC", "PMS", "RRMS"))
 
-#3C
-revisedCLR_disease_course_newgroups_S = subset(revisedCLR, select = c("disease_course_newgroups", "CLR_s_Methanobrevibacter_A.oralis", "CLR_s_Methanobrevibacter_A.smithii", "CLR_s_Methanobrevibacter_A.smithii_A", "CLR_s_Methanobrevibacter_A.sp900766745", "CLR_s_Methanobrevibacter_A.sp900769095", "CLR_s_Methanobrevibacter_A.woesei", "CLR_s_Methanomassiliicoccus.luminyensis", "CLR_s_Methanomassiliicoccus_A.intestinalis", "CLR_s_Methanosphaera.cuniculi", "CLR_s_Methanosphaera.sp900322125", "CLR_s_Methanosphaera.stadtmanae", "CLR_s_UBA71.sp006954425", "CLR_s_UBA71.sp006954465", "CLR_s_UBA71.sp900767505"))
-revisedCLR_disease_course_newgroups_NC_S = subset(revisedCLR_disease_course_newgroups_S, disease_course_newgroups %in% c("PPMSandSPMS", "RRMS"))
-revisedCLR_disease_course_newgroups_NC_S_long = melt(revisedCLR_disease_course_newgroups_NC_S)
-ggplot(revisedCLR_disease_course_newgroups_NC_S_long, aes(x = variable, y = value, color = disease_course_newgroups, fill = disease_course_newgroups)) + geom_boxplot(notch = TRUE) + labs(x="Species", y="CLR transformed abundance", fill = "", color = "") + scale_x_discrete(guide = guide_axis(n.dodge = 2), labels = c("Methanobrevibacter_A oralis", "Methanobrevibacter_A smithii", "Methanobrevibacter_A smithii_A", "Methanobrevibacter_A sp900766745", "Methanobrevibacter_A sp900769095", "Methanobrevibacter_A woesei", "Methanomassiliicoccus luminyensis", "Methanomassiliicoccus_A intestinalis", "Methanosphaera cuniculi", "Methanosphaera sp900322125", "Methanosphaera stadtmanae", "UBA71 sp006954425", "UBA71 sp006954465", "UBA71 sp900767505")) + scale_color_manual(values = c("#CA601B", "#1B85B2"), labels = c("PMS", "RRMS")) + scale_fill_manual(values = c("#FADDA1", "#AFE9F8"), labels = c("PMS", "RRMS")) + theme(legend.position = "top") + stat_compare_means(show.legend=FALSE, label = "p.signif", label.y = 5)
 
-#Figure 4
-#4A
+#Figure 5
+#5A
 revisedCLR_edss_NC = subset(revisedCLR, disease == "MS")
 ggplot(revisedCLR_edss_NC, aes(x = MSSS, y = edss, color = treatment_status)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + labs(y = "EDSS", fill = "Treatment Status", color = "Treatment Status")
 
@@ -329,48 +300,18 @@ cat("P-value:", IW_p_value, "\n")
 Spearman correlation coefficient: 0.7665587
 P-value: 1.27646e-08
 
-#4B
-#4B-1
+#5B
+#5B-1
 colnames(revisedCLR_edss_NC)[colnames(revisedCLR_edss_NC) == "CLR_s_Methanobrevibacter_A.smithii"] <- "smithii"
 Set3 = brewer.pal(9, "Set3")
 Selected_colours =  Set3[5:6]
 ggplot(revisedCLR_edss_NC, aes(x = MSSS, y = edss, color = treatment_status, size = smithii)) + geom_point() + scale_color_manual(values = Selected_colours) + geom_smooth(show.legend=FALSE, method = "lm", se = FALSE) + labs(y = "EDSS", fill = "Treatment Status", color = "Treatment Status", size = "CLR transformed abundance") + ggtitle("Methanobrevibacter_A smithii") + theme(plot.title = element_text(hjust = 0.5)) + guides(size = guide_legend(override.aes = list(color = "lightblue2")))
 
-#4B-2
+#5B-2
 colnames(revisedCLR_edss_NC)[colnames(revisedCLR_edss_NC) == "CLR_s_Methanobrevibacter_A.sp900766745"] <- "sp900766745"
 Set3 = brewer.pal(9, "Set3")
 Selected_colours =  Set3[5:6]
 ggplot(revisedCLR_edss_NC, aes(x = MSSS, y = edss, color = treatment_status, size = sp900766745)) + geom_point() + scale_color_manual(values = Selected_colours) + geom_smooth(show.legend=FALSE, method = "lm", se = FALSE) + labs(y = "EDSS", fill = "Treatment Status", color = "Treatment Status", size = "CLR transformed abundance") + ggtitle("Methanobrevibacter_A sp900766745") + theme(plot.title = element_text(hjust = 0.5)) + guides(size = guide_legend(override.aes = list(color = "lightblue2")))
-
-#4C
-revisedCLR_NC = subset(revisedCLR, disease == "MS")
-revisedCLR_Continuous = subset(revisedCLR_NC, select = c("CLR_s_Methanobrevibacter_A.oralis", "CLR_s_Methanobrevibacter_A.smithii", "CLR_s_Methanobrevibacter_A.smithii_A", "CLR_s_Methanobrevibacter_A.sp900766745", "CLR_s_Methanobrevibacter_A.sp900769095", "CLR_s_Methanobrevibacter_A.woesei", "CLR_s_Methanomassiliicoccus.luminyensis", "CLR_s_Methanomassiliicoccus_A.intestinalis", "CLR_s_Methanosphaera.cuniculi", "CLR_s_Methanosphaera.sp900322125", "CLR_s_Methanosphaera.stadtmanae", "CLR_s_UBA71.sp006954425", "CLR_s_UBA71.sp006954465", "CLR_s_UBA71.sp900767505", "bmi", "age", "MSSS", "edss"))
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanobrevibacter_A.oralis"] <- "Methanobrevibacter_A oralis"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanobrevibacter_A.smithii"] <- "Methanobrevibacter_A smithii"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanobrevibacter_A.smithii_A"] <- "Methanobrevibacter_A smithii_A"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanobrevibacter_A.sp900766745"] <- "Methanobrevibacter_A sp900766745"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanobrevibacter_A.sp900769095"] <- "Methanobrevibacter_A sp900769095"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanobrevibacter_A.woesei"] <- "Methanobrevibacter_A woesei"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanomassiliicoccus.luminyensis"] <- "Methanomassiliicoccus luminyensis"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanomassiliicoccus_A.intestinalis"] <- "Methanomassiliicoccus_A intestinalis"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanomethylophilus.alvus"] <- "Methanomethylophilus alvus"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanosphaera.cuniculi"] <- "Methanosphaera cuniculi"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanosphaera.sp900322125"] <- "Methanosphaera sp900322125"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_Methanosphaera.stadtmanae"] <- "Methanosphaera stadtmanae"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_UBA71.sp006954425"] <- "UBA71 sp006954425"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_UBA71.sp006954465"] <- "UBA71 sp006954465"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "CLR_s_UBA71.sp900767505"] <- "UBA71 sp900767505"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "bmi"] <- "BMI"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "age"] <- "Age"
-colnames(revisedCLR_Continuous)[colnames(revisedCLR_Continuous) == "edss"] <- "EDSS"
-
-revisedCLR_Continuous$Age = as.numeric(revisedCLR_Continuous$Age)
-
-cc = cor(revisedCLR_Continuous, method = "spearman")
-testRes = cor.mtest(cc, conf.level = 0.95)
-corrplot(cc, diag = TRUE, cl.pos = "n", method = "number", type = "lower", tl.pos = "lt", tl.cex = 0.7, tl.srt = 45, tl.col = "black", col = "black", number.cex = 0.8) 
-corrplot(add = TRUE, cc, diag = FALSE, addgrid.col = NULL, tl.pos = "n", type = "upper", method = 'ellipse', p.mat = testRes$p, sig.level = c(0.001, 0.01, 0.05), pch.cex = 2, insig = 'label_sig', pch.col = 'orangered1', col = COL2('PRGn', 10))
-
 
 
 
