@@ -141,7 +141,6 @@ ggplot(revisedCLR_composition_S_neworder_long, aes(fill=variable, y=value, x = d
 #Table 2 and Figure 2
 revisedCLR = read.csv("20240311_analysed_samples.csv")
 revisedCLR$disease_course_newgroups <- ifelse(revisedCLR$disease_course == "Control", "HHC", ifelse(revisedCLR$disease_course %in% c("PPMS", "SPMS"), "PPMSandSPMS", ifelse(revisedCLR$disease_course == "RRMS", "RRMS",  NA)))
-revisedCLR$education_revised <- ifelse(revisedCLR$education %in% c("High School Graduate", "Some High School"), "High School", ifelse(revisedCLR$education %in% c("College/University Degree", "Post-Graduate Education", "Some College/Technical Degree"), "Tertiary education",  NA))
 
 myVars = c("disease", "treatment_status")
 
