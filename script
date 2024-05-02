@@ -140,19 +140,19 @@ ggplot(revisedCLR_MSvsControl_S_long, aes(x = variable, y = value, color = disea
 
 
 #Table 2 
-#Methanobrevibacter (disease and treatment status)
-myVars = c("disease", "treatment_status")
+#Methanobrevibacter (disease)
+myVars = c("disease")
 tab_Methanobrevibacter = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A", data = revisedCLR)
 TableMethanobrevibacter = print(tab_Methanobrevibacter, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , exact = "stage", smd = TRUE)
-write.csv(TableMethanobrevibacter, file = "20240311_MS_Methanobrevibacter.csv")
+write.csv(TableMethanobrevibacter, file = "01_MS_Methanobrevibacter.csv")
 
-#Methanobrevibacter (MSSS and EDSS)
+#Methanobrevibacter (treatment status, MSSS and EDSS)
 revisedCLR_1 = subset(revisedCLR, disease == "MS")
 myVars = c("treatment_status", "MSSS", "edss")
 Nonnormal = c("MSSS", "edss")
 tab_Methanobrevibacter = CreateTableOne(vars = myVars, strata = "high.methane.emitter_Methanobrevibacter_A", data = revisedCLR_1)
 TableMethanobrevibacter = print(tab_Methanobrevibacter, showAllLevels = TRUE, formatOptions = list(big.mark = ",") , nonnormal = Nonnormal, exact = "stage", smd = TRUE)
-write.csv(TableMethanobrevibacter, file = "20240312_MS_Methanobrevibacter.csv")
+write.csv(TableMethanobrevibacter, file = "02_MS_Methanobrevibacter.csv")
 
 
 #Figure 2
