@@ -220,12 +220,18 @@ ggplot(revisedCLR_disease_course_newgroups_NC_S_long, aes(x = variable, y = valu
 #Figure 4
 revisedCLR_NC = subset(revisedCLR, disease == "MS")
 
+
+
+revisedCLR_NC <- revisedCLR_NC[revisedCLR_NC$s_Methanobrevibacter_A.smithii != 0.00000, ]
+
 ggplot(revisedCLR_NC, aes(x = MSSS, y = CLR_s_Methanobrevibacter_A.smithii, color = treatment_status)) + 
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) + 
   stat_cor(show.legend=FALSE, method = "spearman", label.x = 5, label.y = c(1,-1)) +  # Adjust label position
   labs(y = "CLR transformed abundance", fill = "Treatment Status", color = "Treatment Status", title = "Methanobrevibacter_A smithii") +
   theme(plot.title = element_text(hjust = 0.5))
+
+
 
 ggplot(revisedCLR_NC, aes(x = edss, y = CLR_s_Methanobrevibacter_A.smithii, color = treatment_status)) + 
   geom_point() + 
@@ -234,12 +240,16 @@ ggplot(revisedCLR_NC, aes(x = edss, y = CLR_s_Methanobrevibacter_A.smithii, colo
   labs(y = "CLR transformed abundance", x = "EDSS", fill = "Treatment Status", color = "Treatment Status", title = "Methanobrevibacter_A smithii") +
   theme(plot.title = element_text(hjust = 0.5))
 
+
+
 ggplot(revisedCLR_NC, aes(x = MSSS, y = CLR_s_Methanobrevibacter_A.sp900766745, color = treatment_status)) + 
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) + 
   stat_cor(show.legend=FALSE, method = "spearman", label.x = 5, label.y = c(1,-1)) +  # Adjust label position
   labs(y = "CLR transformed abundance", fill = "Treatment Status", color = "Treatment Status", title = "Methanobrevibacter_A sp900766745") +
   theme(plot.title = element_text(hjust = 0.5))
+
+
 
 ggplot(revisedCLR_NC, aes(x = edss, y = CLR_s_Methanobrevibacter_A.sp900766745, color = treatment_status)) + 
   geom_point() + 
